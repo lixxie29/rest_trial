@@ -18,8 +18,8 @@ public class LoadDB {
     @Bean
     CommandLineRunner initDB(EmployeeRepo repo){
         return args -> {
-            log.info("preload" + repo.save(new Employee("John Doe", "proffesor")));
-            log.info("preload" + repo.save(new Employee("Ale Xandra", "director")));
+            log.info("preload" + repo.save(new Employee("John", "Doe", "proffesor")));
+            log.info("preload" + repo.save(new Employee("Ale", "Xandra", "director")));
         };
     }
 }

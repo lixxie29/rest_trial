@@ -23,8 +23,11 @@ public class EmployeeController {
 
     private final EmployeeRepo repo;
 
-    EmployeeController(EmployeeRepo repo) {
+    private final EmployeeModelAssembler assembler;
+
+    EmployeeController(EmployeeRepo repo, EmployeeModelAssembler assembler) {
         this.repo = repo;
+        this.assembler = assembler;
     }
 
 //    @GetMapping("/employees")             //non-rest version
@@ -32,14 +35,24 @@ public class EmployeeController {
 //        return repo.findAll();
 //    }
 
+
 //  CollectionModel - spring hateoas container that encapsulates collections of employee resources
 
+//    @GetMapping("/employees")
+//    CollectionModel<EntityModel<Employee>> all(){
+//
+//        List<EntityModel<Employee>> employees = repo.findAll().stream().map(employee -> EntityModel.of(employee,
+//
+//                linkTo(methodOn(EmployeeController.class).all()).withRel("employees"))).collect(Collectors.toList());
+//
+//        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
+//    }
+
     @GetMapping("/employees")
-    CollectionModel<EntityModel<Employee>> all(){
-
-        List<EntityModel<Employee>> employees = repo.findAll().stream().map(employee -> EntityModel.of(employee,
-
-                linkTo(methodOn(EmployeeController.class).all()).withRel("employees"))).collect(Collectors.toList());
+    CollectionModel<EntityModel<Employee>> all(){         //we replace all the entity creation logic with map assembler
+        List<EntityModel<Employee>> employees = repo.findAll().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
 
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
@@ -64,13 +77,22 @@ public class EmployeeController {
 //    }
 
     //single item
+//    @GetMapping("/employees/{id}")
+//    EntityModel<Employee> one(@PathVariable Long id){
+//        Employee employee = repo.findById(id)
+//                .orElseThrow(() -> new EmployeeNotFoundException(id));
+//        return EntityModel.of(employee,
+//                linkTo(methodOn(EmployeeController.class).one(id)).withSelfRel(),
+//                linkTo(methodOn(EmployeeController.class).all()).withRel("employees"));
+//    }
+
     @GetMapping("/employees/{id}")
-    EntityModel<Employee> one(@PathVariable Long id){
-        Employee employee = repo.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
-        return EntityModel.of(employee,
-                linkTo(methodOn(EmployeeController.class).one(id)).withSelfRel(),
-                linkTo(methodOn(EmployeeController.class).all()).withRel("employees"));
+    EntityModel<Employee> one(@PathVariable Long id) {
+
+        //same code but the diff is that we delegate the creation of entity to the assembler
+
+        Employee employee = repo.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+        return assembler.toModel(employee);
     }
 
 
