@@ -1,4 +1,4 @@
-package com.example.payroll.Controller;
+package com.example.payroll.controller;
 
 import java.util.List;
 
@@ -34,7 +34,6 @@ public class EmployeeController {
     @GetMapping("/employees/{id}")
     Employee getEmployee(@PathVariable Long id) {
         return repo.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
-
     }
 
     @PutMapping("/employees/{id}")
@@ -46,7 +45,7 @@ public class EmployeeController {
                     employee.setRole(newEmployee.getRole());
                     return repo.save(employee);
                 })
-                .orElseGet(() -> {return repo.save(newEmployee);});
+                .orElseGet(() -> repo.save(newEmployee));
     }
 
     @DeleteMapping("/employees/{id}")
